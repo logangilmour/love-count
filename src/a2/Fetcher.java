@@ -41,11 +41,16 @@ public class Fetcher {
 		
 	private Writer writer;
 	
+	private static String HPATH = "/usr/local/Cellar/hadoop/1.2.1/libexec/conf/";
+	
 	public Fetcher (){
 	}
 	
 	
 	public static void main(String [] args){
+		if(args.length>0){
+			HPATH=args[0];
+		}
 		Fetcher fetcher = new Fetcher();
 		try {
 			fetcher.fetch();
@@ -58,8 +63,8 @@ public class Fetcher {
 	public void initWriter(String path) throws IOException{
 		Configuration conf = new Configuration();
 		
-		conf.addResource(new Path("/usr/local/Cellar/hadoop/1.2.1/libexec/conf/core-site.xml"));
-		conf.addResource(new Path("/usr/local/Cellar/hadoop/1.2.1/libexec/conf/hdfs-site.xml"));
+		conf.addResource(new Path(HPATH+"core-site.xml"));
+		conf.addResource(new Path(HPATH+"hdfs-site.xml"));
 	    FileSystem fs = FileSystem.get(conf);
 	    Path seqFilePath = new Path(path);
         this.writer = SequenceFile.createWriter(fs,conf,seqFilePath,Text.class,Text.class);
