@@ -162,9 +162,11 @@ public class Fetcher {
 				 
 		
 		} catch (IOException e) {
+			root=null;
 			System.out.println("Weird shit.");
 			e.printStackTrace();
 		} catch (InterruptedException e) {
+			root=null;
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 
