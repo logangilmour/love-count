@@ -44,7 +44,7 @@ public class GithubRequest implements Closeable{
 		Logger httplogger = Logger.getLogger("org.apache.http.wire");
 		httplogger.setLevel(Level.DEBUG);
 		HttpHost targetHost = new HttpHost("api.github.com", 443, "https");
-		UsernamePasswordCredentials cred = new UsernamePasswordCredentials("logangilmour","!snTH3q77X");
+		UsernamePasswordCredentials cred = new UsernamePasswordCredentials(System.getenv("GITHUB_TOKEN"),"");
 		CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
 		credentialsProvider.setCredentials(new AuthScope("api.github.com",443), cred);
 		
