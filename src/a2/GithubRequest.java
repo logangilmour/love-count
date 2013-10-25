@@ -41,8 +41,8 @@ public class GithubRequest implements Closeable{
 	
 	public GithubRequest(String url) throws IllegalStateException, IOException{
 		while(true){
-		Logger httplogger = Logger.getLogger("org.apache.http.wire");
-		httplogger.setLevel(Level.DEBUG);
+		//Logger httplogger = Logger.getLogger("org.apache.http.wire");
+		//httplogger.setLevel(Level.DEBUG);
 		HttpHost targetHost = new HttpHost("api.github.com", 443, "https");
 		UsernamePasswordCredentials cred = new UsernamePasswordCredentials(System.getenv("GITHUB_TOKEN"),"");
 		CredentialsProvider credentialsProvider = new BasicCredentialsProvider();

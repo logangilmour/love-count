@@ -43,7 +43,7 @@ public class ArchiveStringIterator implements Iterator<String>,Iterable<String>,
 	public String next() {
 		try {
 			next=tar.getNextTarEntry();
-			while(next!=null && !next.isFile()){
+			while(next!=null && (!next.isFile() || !next.getName().endsWith(".java"))){
 				next = tar.getNextTarEntry();
 			}
 			ByteArrayOutputStream out = new ByteArrayOutputStream();

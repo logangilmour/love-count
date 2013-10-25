@@ -3,6 +3,7 @@ package a2;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -28,6 +29,8 @@ import org.apache.tools.tar.TarEntry;
 import org.apache.tools.tar.TarInputStream;
 
 
+import au.com.bytecode.opencsv.CSVReader;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -39,8 +42,8 @@ public class Fetcher {
 		
 	private Writer writer;
 	
-	private static String HPATH = "/usr/local/Cellar/hadoop/1.2.1/libexec/conf/";
-	
+	//private static String HPATH = "/usr/local/Cellar/hadoop/1.2.1/libexec/";
+	private static String HPATH = "/home/ubuntu/hadoop/";
 	public Fetcher (){
 	}
 	
@@ -50,19 +53,14 @@ public class Fetcher {
 			HPATH=args[0];
 		}
 		Fetcher fetcher = new Fetcher();
-		try {
-			fetcher.fetch();
-		} catch (IOException e) {
-			System.err.println("Crazy fucking bullshit.");
-			e.printStackTrace(System.err);
-		}
+		fetcher.fetch();
+		
 	}
 	
 	public void initWriter(String path) throws IOException{
 		Configuration conf = new Configuration();
-		
-		conf.addResource(new Path(HPATH+"core-site.xml"));
-		conf.addResource(new Path(HPATH+"hdfs-site.xml"));
+		conf.addResource(new Path(HPATH+"conf/core-site.xml"));
+		conf.addResource(new Path(HPATH+"conf/hdfs-site.xml"));
 	    FileSystem fs = FileSystem.get(conf);
 	    Path seqFilePath = new Path(path);
         this.writer = SequenceFile.createWriter(fs,conf,seqFilePath,Text.class,Text.class);
@@ -76,35 +74,44 @@ public class Fetcher {
 		}
 	}
 	
-	public void fetch() throws IOException{
-		DBCursor cursor = null;
-		
+	public void fetch(){
+		CSVReader reader = null;
+	    ArchiveStringIterator it = null;
 		try{
-			cursor = getRepos();
-			initWriter("/test-job");
-			int i = 0;
-			while(cursor.hasNext() && i<5){
-				DBObject repo = cursor.next();
-				System.out.println(repo);
-				File root = cloneRepo(repo.get("clone_url").toString(), "/tmp/repo");
-				if(root==null)continue;
-				i++;
-
-				List<File> files = listFiles(root);
-				for(File file: files){
-					String contents = FileUtils.readFileToString(file);
-					writeHDFS(repo.get("id").toString(), contents);
-				}
-			}
-			
-		}catch(UnknownHostException e){
-			System.err.println("Couldn't find database probably");
-			e.printStackTrace(System.err);
-		} catch (IOException e) {
-			System.err.println("Probably some sort of trouble with Hadoop.");
+		initWriter("test.seq");
+		reader = new CSVReader(new FileReader("projects.csv"));
+	    String [] nextLine;
+	    int i = 0;
+	    reader.readNext();
+	    long time = System.currentTimeMillis();
+	    int bad = 0;
+	    while ((nextLine = reader.readNext()) != null) {
+	    	i++;
+	    	String id = nextLine[0];
+	        String url = nextLine[1];
+	        System.out.println("Working on #"+i+", missed "+bad+" so far.");
+	        
+	        
+	        	System.out.println(id +", "+ url);
+	        	try{
+	    	        it = new ArchiveStringIterator(url+"/tarball/");
+	    			for(String s: it){
+	    				writeHDFS(id,s);
+	    			}
+	    			
+	    		}catch(IOException e){
+	    			e.printStackTrace(System.err);
+	    			bad++;
+	    		}finally {
+	    			IOUtils.closeQuietly(it);
+	    		}
+	        
+	    }
+		}catch(IOException e){
 			e.printStackTrace(System.err);
 		}finally{
-			if(cursor!=null) cursor.close();
+			IOUtils.closeQuietly(reader);
+			
 			closeWriter();
 		}
 	}
