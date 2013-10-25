@@ -70,25 +70,31 @@
 		<artifactId>commons-io</artifactId>
 		<version>2.4</version>
 	</dependency>
-            
-  	
-  	<dependency>
-		<groupId>net.sf.opencsv</groupId>
-		<artifactId>opencsv</artifactId>
-		<version>2.0</version>
-	</dependency>	
 		
 	<dependency>
 		<groupId>org.apache.hadoop</groupId>
 		<artifactId>hadoop-core</artifactId>
 		<version>1.2.1</version>
 	</dependency>
-	
+    
     <dependency>
-      <groupId>org.eclipse.jgit</groupId>
-      <artifactId>org.eclipse.jgit</artifactId>
-      <version>3.1.0.201310021548-r</version>
-    </dependency>
+	<groupId>org.apache.commons</groupId>
+	<artifactId>commons-compress</artifactId>
+	<version>1.5</version>
+	
+</dependency>
+
+<dependency>
+	<groupId>org.apache.httpcomponents</groupId>
+	<artifactId>httpclient</artifactId>
+	<version>4.3.1</version>
+</dependency>
+<dependency>
+	<groupId>log4j</groupId>
+	<artifactId>log4j</artifactId>
+	<version>1.2.17</version>
+</dependency>
+            
 	
   </dependencies>
 </project>
