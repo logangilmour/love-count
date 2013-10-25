@@ -62,7 +62,7 @@ public int run(String[] args) throws Exception {
     job.setMapperClass(Map.class);
     job.setReducerClass(Reduce.class);
 
-    job.setInputFormatClass(SequenceFileInputFormat.class);
+    job.setInputFormatClass(TolerantSequenceFormat.class);
     job.setOutputFormatClass(TextOutputFormat.class);
 
     FileInputFormat.setInputPaths(job, new Path(args[0]));
