@@ -78,7 +78,7 @@ public class Fetcher {
 		CSVReader reader = null;
 	    ArchiveStringIterator it = null;
 		try{
-		initWriter("test.seq");
+		initWriter("/files.seq");
 		reader = new CSVReader(new FileReader("projects.csv"));
 	    String [] nextLine;
 	    int i = 0;
