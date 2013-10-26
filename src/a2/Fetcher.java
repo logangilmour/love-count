@@ -47,6 +47,7 @@ public class Fetcher {
 	private static String DEST = "/default.seq";
 	private static int FIRST = 0;
 	private static int MOD=1;
+	private static int START = 0;
 	public Fetcher (){
 	}
 	
@@ -55,6 +56,7 @@ public class Fetcher {
 		DEST=args[0];
 		FIRST=Integer.parseInt(args[1]);
 		MOD=Integer.parseInt(args[2]);
+		START=Integer.parseInt(args[3]);
 		Fetcher fetcher = new Fetcher();
 		fetcher.fetch();
 		
@@ -90,20 +92,23 @@ public class Fetcher {
 	    int bad = 0;
 	    while ((nextLine = reader.readNext()) != null) {
 	    	i++;
-	    	if(i%MOD==FIRST){
+	    	
+	    	if(i>=START && i%MOD==FIRST){
 	    	String id = nextLine[0];
 	        String url = nextLine[1];
 	        System.out.println("Working on #"+i+", missed "+bad+" so far.");
 	        
 	        
 	        	System.out.println(id +", "+ url);
+	        	
+	        	
 	        	try{
-	    	        it = new ArchiveStringIterator(url+"/tarball/");
-	    			for(String s: it){
-	    				writeHDFS(id,s);
-	    				
-	    			}
-	    			
+	        			it = new ArchiveStringIterator(url+"/tarball/");
+	        			for(String s: it){
+	        				if(s!=null){
+	        					writeHDFS(id,s);
+	        				}	
+	        			}
 	    		}catch(IOException e){
 	    			e.printStackTrace(System.err);
 	    			bad++;
