@@ -103,6 +103,7 @@ public class GithubRequest implements Closeable{
 			
 		}
 		if(status==403 && remaining== 0){
+			System.out.println("Time to wait!");
 			try {
 				Thread.sleep(1000*(until+1));
 			} catch (InterruptedException e) {

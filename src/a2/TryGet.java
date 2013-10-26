@@ -8,8 +8,11 @@ public class TryGet {
 	public static void main(String args[]){
 		ArchiveStringIterator  it = null;
 		try {
+			
 			it = new ArchiveStringIterator("https://api.github.com/repos/logangilmour/universe/tarball/");
+			
 			for(String s: it){
+				
 				System.out.println(s);
 			}
 			

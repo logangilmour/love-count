@@ -16,7 +16,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.io.IOUtils;
 
-public class ArchiveStringIterator implements Iterator<String>,Iterable<String>, Closeable{
+public class ArchiveStringIterator implements Iterator<String>,Iterable<String>, Closeable {
 
 	InputStream in = null;
 	GZIPInputStream gz = null;
@@ -44,8 +44,10 @@ public class ArchiveStringIterator implements Iterator<String>,Iterable<String>,
 		try {
 			next=tar.getNextTarEntry();
 			while(next!=null && (!next.isFile() || !next.getName().endsWith(".java"))){
+
 				next = tar.getNextTarEntry();
 			}
+
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			int size = 1024;
 			byte[] bytes = new byte[size];
