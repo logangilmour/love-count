@@ -164,8 +164,8 @@ class HWriter extends Thread{
 	
 	public void run(){
 		Configuration conf = new Configuration();
-		//conf.addResource(new Path(Fetcher.HPATH+"conf/core-site.xml"));
-		//conf.addResource(new Path(Fetcher.HPATH+"conf/hdfs-site.xml"));
+		conf.addResource(new Path(Fetcher.HPATH+"conf/core-site.xml"));
+		conf.addResource(new Path(Fetcher.HPATH+"conf/hdfs-site.xml"));
 	    Path seqFilePath = new Path(Fetcher.DEST);
 		FileSystem fs = null;
         Writer writer = null;
