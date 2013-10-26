@@ -44,14 +44,17 @@ public class Fetcher {
 	
 	//private static String HPATH = "/usr/local/Cellar/hadoop/1.2.1/libexec/";
 	private static String HPATH = "/home/ubuntu/hadoop/";
+	private static String DEST = "/default.seq";
+	private static int FIRST = 0;
+	private static int LAST=-1;
 	public Fetcher (){
 	}
 	
 	
 	public static void main(String [] args){
-		if(args.length>0){
-			HPATH=args[0];
-		}
+		DEST=args[0];
+		FIRST=Integer.parseInt(args[1]);
+		LAST=Integer.parseInt(args[2]);
 		Fetcher fetcher = new Fetcher();
 		fetcher.fetch();
 		
@@ -78,7 +81,7 @@ public class Fetcher {
 		CSVReader reader = null;
 	    ArchiveStringIterator it = null;
 		try{
-		initWriter("/files.seq");
+		initWriter(DEST);
 		reader = new CSVReader(new FileReader("projects.csv"));
 	    String [] nextLine;
 	    int i = 0;
@@ -87,6 +90,7 @@ public class Fetcher {
 	    int bad = 0;
 	    while ((nextLine = reader.readNext()) != null) {
 	    	i++;
+	    	if(i>=FIRST && (LAST<0 || i<=LAST)){
 	    	String id = nextLine[0];
 	        String url = nextLine[1];
 	        System.out.println("Working on #"+i+", missed "+bad+" so far.");
@@ -105,6 +109,7 @@ public class Fetcher {
 	    		}finally {
 	    			IOUtils.closeQuietly(it);
 	    		}
+	    	}
 	        
 	    }
 		}catch(IOException e){
