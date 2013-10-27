@@ -61,6 +61,7 @@ public int run(String[] args) throws Exception {
 
     job.setMapperClass(Map.class);
     job.setReducerClass(Reduce.class);
+    job.setCombinerClass(Reduce.class);
 
     job.setInputFormatClass(TolerantSequenceFormat.class);
     job.setOutputFormatClass(TextOutputFormat.class);
