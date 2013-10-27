@@ -41,7 +41,7 @@ public class ArchiveStringIterator implements Iterator<String>,Iterable<String>,
 
 	@Override
 	public String next() {
-		try {
+		try{
 			next=tar.getNextTarEntry();
 			while(next!=null && (!next.isFile() || !next.getName().endsWith(".java"))){
 
@@ -59,8 +59,10 @@ public class ArchiveStringIterator implements Iterator<String>,Iterable<String>,
 			}
 			return new String(out.toByteArray(),"UTF-8");
 		} catch (UnsupportedEncodingException e) {
+			this.next=null;
 			e.printStackTrace(System.err);
 		} catch (IOException e) {
+			this.next=null;
 			e.printStackTrace(System.err);
 		}
 		return null;
