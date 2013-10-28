@@ -17,8 +17,7 @@ import org.javatuples.Pair;
 
 public class Upload {
 	
-	public static String HPATH = "/usr/local/Cellar/hadoop/1.2.1/libexec/";
-	//public static String HPATH = "/home/ubuntu/hadoop/";
+	public static String HPATH = System.getenv("HADOOP_HOME");
 	
 	public static void main(String args[]){
 		Configuration conf = new Configuration();
