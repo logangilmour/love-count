@@ -51,20 +51,55 @@
         </configuration>
       </plugin>
     </plugins>
+    <pluginManagement>
+    	<plugins>
+    		<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+    		<plugin>
+    			<groupId>org.eclipse.m2e</groupId>
+    			<artifactId>lifecycle-mapping</artifactId>
+    			<version>1.0.0</version>
+    			<configuration>
+    				<lifecycleMappingMetadata>
+    					<pluginExecutions>
+    						<pluginExecution>
+    							<pluginExecutionFilter>
+    								<groupId>
+    									org.apache.maven.plugins
+    								</groupId>
+    								<artifactId>
+    									maven-dependency-plugin
+    								</artifactId>
+    								<versionRange>[2.1,)</versionRange>
+    								<goals>
+    									<goal>copy-dependencies</goal>
+    								</goals>
+    							</pluginExecutionFilter>
+    							<action>
+    								<ignore></ignore>
+    							</action>
+    						</pluginExecution>
+    					</pluginExecutions>
+    				</lifecycleMappingMetadata>
+    			</configuration>
+    		</plugin>
+    	</plugins>
+    </pluginManagement>
   </build>
+  <repositories>
+    <repository>
+			<id>gforge.inria.fr-release</id>
+			<name>Maven Repository for Spoon</name>
+			<url>http://spoon.gforge.inria.fr/repositories/releases/</url>
+			<releases />
+		</repository>
+	</repositories>
   <dependencies>
-  	
-  <!--  	<dependency>
-  		<groupId>org.eclipse.jdt</groupId>
-  		<artifactId>core</artifactId>
-  		<version>3.3.0-v_771</version>
-  	</dependency> -->
-  	
-  	<dependency>
-		<groupId>org.mongodb</groupId>
-		<artifactId>mongo-java-driver</artifactId>
-		<version>2.11.3</version>
-	</dependency>
+		<dependency>
+			<groupId>fr.inria.gforge.spoon</groupId>
+			<artifactId>spoon-core</artifactId>
+			<version>1.5</version>
+		</dependency>
+ 
 	<dependency>
 		<groupId>commons-io</groupId>
 		<artifactId>commons-io</artifactId>
@@ -106,6 +141,12 @@
         <scope>compile</scope>
 </dependency>
             
+            <dependency>
+    <groupId>com.google.code.javaparser</groupId>
+    <artifactId>javaparser</artifactId>
+    <version>1.0.8</version>
+</dependency>
 	
   </dependencies>
+ 
 </project>

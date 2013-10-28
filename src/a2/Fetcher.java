@@ -20,8 +20,8 @@ import au.com.bytecode.opencsv.CSVReader;
 public class Fetcher {
 		
 	
-	//private static String HPATH = "/usr/local/Cellar/hadoop/1.2.1/libexec/";
-	public static String HPATH = "/home/ubuntu/hadoop/";
+	public static String HPATH = "/usr/local/Cellar/hadoop/1.2.1/libexec/";
+	//public static String HPATH = "/home/ubuntu/hadoop/";
 	public static String DEST = "/default.seq";
 
 	public Fetcher (){
@@ -56,7 +56,8 @@ public class Fetcher {
 	
 	    
 	    while ((nextLine = reader.readNext()) != null) {
-	    	i++;	    	
+	    	i++;	
+
 	    	String id = nextLine[0];
 	        String url = nextLine[1];
 	        try{
@@ -66,6 +67,7 @@ public class Fetcher {
 				// TODO Auto-generated catch block
 				e.printStackTrace(System.err);
 			}
+	    	
 	    }
 
 	    pool.shutDown();
