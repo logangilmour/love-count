@@ -39,12 +39,14 @@ public class FileCount extends Configured implements Tool{
     private final static IntWritable one = new IntWritable(1);
     private Text word = new Text();
 
+    public static enum MyCounter{
+    	BAD_PARSE, NO_IMPORTS, WILD_CARD_IMPORTS
+    };
     
     public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
 
     		       	    	
     	Text im = new Text();
-    	Text bad = new Text("Bad Count");
     	CompilationUnit unit =null;
     	ByteArrayInputStream b = null;
 		
@@ -52,17 +54,23 @@ public class FileCount extends Configured implements Tool{
     	try {
     		b = new ByteArrayInputStream(value.toString().getBytes("UTF-8"));
 			unit = JavaParser.parse(b);
-	    	for(ImportDeclaration dec: unit.getImports()){	    		
-	    		im.set(dec.toString());
+	    	for(ImportDeclaration dec: unit.getImports()){
+	    		String d = dec.toString();
+	    		if(d.contains("*")){
+	    			context.getCounter(MyCounter.WILD_CARD_IMPORTS).increment(1);
+	    		}
+	    		im.set(d);
 	    		context.write(im, one);
 	    	}
 
 		} catch (ParseException e) {
-			context.write(bad, one);
+			
+			context.getCounter(MyCounter.BAD_PARSE).increment(1);
 		}catch (NullPointerException e){
-			context.write(bad, one);
+			context.getCounter(MyCounter.NO_IMPORTS).increment(1);
 		}catch (Error e){
-			context.write(bad, one);
+			context.getCounter(MyCounter.BAD_PARSE).increment(1);
+
 		}
 		
     	
