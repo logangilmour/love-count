@@ -17,7 +17,9 @@ public class Main {
                 
                 StopWatch timer = new StopWatch();
                 timer.start();
-                Configuration conf = new Configuration();                
+                Configuration conf = new Configuration();     
+                FileSystem fs = FileSystem.get(conf);
+
                 
                 String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
                 
@@ -26,7 +28,8 @@ public class Main {
                 String[] initOpts = { otherArgs[0], dir + "tr-0.out" };
                 ToolRunner.run(new InitRank(), initOpts);
                 
-
+                
+                
                 
                 
                 int i = 1;
@@ -35,11 +38,15 @@ public class Main {
                         String current = dir + "tr-" + i + ".out";
                         String[] opts = {previous, current};
                         ToolRunner.run(new Rank(), opts);
-                        //fs.delete(new Path(previous), true);
+                        fs.delete(new Path(previous), true);
                 }
+                String prev = dir + "tr-"+(i-1)+".out";
                 
-                String[] aggOpts = { dir + "tr-"+(i-1)+".out", dir + "tr-done.out" };
+                String[] aggOpts = { prev, dir + "tr-done.out" };
                 ToolRunner.run(new Aggregate(), aggOpts);
+                
+                fs.delete(new Path(prev), true);
+
             
                 timer.stop();
                 System.out.println("Elapsed " + timer.toString());
