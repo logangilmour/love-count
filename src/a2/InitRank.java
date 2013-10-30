@@ -35,7 +35,7 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.eclipse.jdt.internal.compiler.parser.JavadocParser;
 
-import a2.FileCount.Map.MyCounter;
+import a2.FileSizes.Map.MyCounter;
 
 import com.sun.el.parser.TokenMgrError;
 
@@ -44,7 +44,7 @@ public class InitRank extends Configured implements Tool{
  public static class Map extends Mapper<Text, Text, Text, TypeWritable> {
 	TypeWritable type = new TypeWritable();
     public static enum MyCounter{
-    	BAD_PARSE, NO_PACKAGE, WILD_CARD_IMPORTS, NO_IMPORTS
+    	BAD_PARSE, NO_PACKAGE, WILD_CARD_IMPORTS, NO_IMPORTS, USEFUL, TOTAL
     };
     
     public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
@@ -54,7 +54,7 @@ public class InitRank extends Configured implements Tool{
     	
     	CompilationUnit unit =null;
     	ByteArrayInputStream b = null;
-		
+		context.getCounter(MyCounter.TOTAL).increment(1);
     	
     	try {
     		b = new ByteArrayInputStream(value.toString().getBytes("UTF-8"));
@@ -80,6 +80,7 @@ public class InitRank extends Configured implements Tool{
 		    	}else{
 		    		context.getCounter(MyCounter.NO_IMPORTS).increment(1);
 		    	}
+				context.getCounter(MyCounter.USEFUL).increment(1);
 				type.setImports(list.toArray(new Text[0]));
 	    		context.write(name, type);
 			}else{

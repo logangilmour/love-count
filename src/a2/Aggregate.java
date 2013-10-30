@@ -34,7 +34,7 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.eclipse.jdt.internal.compiler.parser.JavadocParser;
 
-import a2.FileCount.Map.MyCounter;
+import a2.FileSizes.Map.MyCounter;
 
 import com.sun.el.parser.TokenMgrError;
 
