@@ -14,6 +14,8 @@ import org.apache.hadoop.io.SequenceFile.Writer;
 import org.apache.hadoop.io.Text;
 import org.javatuples.Pair;
 
+import extractor.ArchiveStringIterator;
+
 
 import au.com.bytecode.opencsv.CSVReader;
 

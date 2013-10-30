@@ -1,12 +1,13 @@
 package a2;
 
+import mapred.Aggregate;
+import mapred.InitRank;
+import mapred.Rank;
+
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.filecache.DistributedCache;
-import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapred.jobcontrol.JobControl;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.ToolRunner;
 
