@@ -23,6 +23,7 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
@@ -144,7 +145,7 @@ public int run(String[] args) throws Exception {
     job.setReducerClass(Reduce.class);
     job.setCombinerClass(Reduce.class);
 
-    job.setInputFormatClass(TolerantSequenceFormat.class);
+    job.setInputFormatClass(SequenceFileInputFormat.class);
     job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
     FileInputFormat.setInputPaths(job, new Path(args[0]));
