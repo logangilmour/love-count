@@ -32,6 +32,7 @@ import org.apache.hadoop.util.GenericOptionsParser;
 public class InitRank extends Configured implements Tool{
 
  public static class Map extends Mapper<Text, Text, Text, TypeWritable> {
+	 
 	TypeWritable type = new TypeWritable();
     public static enum MyCounter{
     	BAD_PARSE, NO_PACKAGE, WILD_CARD_IMPORTS, NO_IMPORTS, USEFUL, TOTAL
@@ -42,6 +43,7 @@ public class InitRank extends Configured implements Tool{
 
     	TypeWritable type = new TypeWritable();
     	Text name = new Text();
+    	
     	
     	CompilationUnit unit =null;
     	ByteArrayInputStream b = null;
@@ -64,8 +66,11 @@ public class InitRank extends Configured implements Tool{
 						if(decName.contains("*")){
 							context.getCounter(MyCounter.WILD_CARD_IMPORTS).increment(1);
 						}else{
-							list.add(new Text(decName));
+							Text imp = new Text(decName);
+							list.add(imp);
+							context.write(imp, new TypeWritable());
 						}
+						
 					}
 					
 		    	}else{
@@ -73,6 +78,7 @@ public class InitRank extends Configured implements Tool{
 		    	}
 				context.getCounter(MyCounter.USEFUL).increment(1);
 				type.setImports(list.toArray(new Text[0]));
+				type.setProject(Integer.parseInt(key.toString()));
 	    		context.write(name, type);
 			}else{
 				context.getCounter(MyCounter.NO_PACKAGE).increment(1);
@@ -103,8 +109,17 @@ public void run (Context context) throws IOException, InterruptedException {
 
  public static class Reduce extends Reducer<Text, TypeWritable, Text, TypeWritable> {
 
-    public void reduce(Text key, Iterable<IntWritable> values, Context context) {
-
+    public void reduce(Text key, Iterable<TypeWritable> values, Context context) 
+    		throws IOException, InterruptedException {
+    	TypeWritable t = new TypeWritable();
+    	for(TypeWritable type: values){
+    		if(type.getImports().length>0){
+    			t=type;
+    		}
+    	}
+    	//return (intermediate_key,
+    	//          pr_param*sum(intermediate_value_list)+s*ip/n+(1.0-s)/n)
+    	context.write(key, t);
     }
  }
 
@@ -127,10 +142,10 @@ public int run(String[] args) throws Exception {
 
     job.setMapperClass(Map.class);
     job.setReducerClass(Reduce.class);
+    job.setCombinerClass(Reduce.class);
 
     job.setInputFormatClass(TolerantSequenceFormat.class);
     job.setOutputFormatClass(SequenceFileOutputFormat.class);
-    job.setNumReduceTasks(0);
 
     FileInputFormat.setInputPaths(job, new Path(args[0]));
     FileOutputFormat.setOutputPath(job, new Path(args[1]));

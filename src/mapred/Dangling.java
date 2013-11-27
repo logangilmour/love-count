@@ -14,19 +14,22 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
-
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.util.GenericOptionsParser;
 
-public class Aggregate extends Configured implements Tool{
-
- public static class Map extends Mapper<Text, TypeWritable, DoubleWritable, Text> {
+public class Dangling extends Configured implements Tool{
+static Text output = new Text("output");
+ public static class Map extends Mapper<Text, TypeWritable, Text, DoubleWritable> {
+	TypeWritable type = new TypeWritable();
+	Text name = new Text();
     
     @Override
-	public void map(Text key, TypeWritable value, Context context) throws IOException, InterruptedException {    	
-    	context.write(new DoubleWritable(value.getRank()), key);
+	public void map(Text key, TypeWritable value, Context context) throws IOException, InterruptedException {
+            if (value.getImports().length < 1) {
+                    context.write(output, new DoubleWritable(value.getRank()));
+            }
     }
 
   @Override
@@ -39,8 +42,19 @@ public void run (Context context) throws IOException, InterruptedException {
   }
  }
 
- public static class Reduce extends Reducer<DoubleWritable, Text, DoubleWritable, Text> {
-	 
+ public static class Reduce extends Reducer<Text, DoubleWritable, Text, DoubleWritable> {
+
+    @Override
+	public void reduce(Text key, Iterable<DoubleWritable> values, Context context) 
+    		throws IOException, InterruptedException {
+		 
+		 double cur = 0;
+    	for(DoubleWritable val: values){
+    		cur+=val.get();
+    	}
+
+    	context.write(output, new DoubleWritable(cur));
+    }
  }
 
 @Override
@@ -57,19 +71,21 @@ public int run(String[] args) throws Exception {
 	      DistributedCache.addFileToClassPath(disqualified, conf, fs);
 	 }
 
-    job.setOutputKeyClass(DoubleWritable.class);
-    job.setOutputValueClass(Text.class);
+    job.setOutputKeyClass(Text.class);
+    job.setOutputValueClass(DoubleWritable.class);
 
     job.setMapperClass(Map.class);
     job.setReducerClass(Reduce.class);
+    job.setCombinerClass(Reduce.class);
+    
+    job.setNumReduceTasks(1);
 
     job.setInputFormatClass(SequenceFileInputFormat.class);
-    job.setOutputFormatClass(TextOutputFormat.class);
+    job.setOutputFormatClass(SequenceFileOutputFormat.class);
     FileInputFormat.setInputPaths(job, new Path(args[0]));
     FileOutputFormat.setOutputPath(job, new Path(args[1]));
-    //job.setNumReduceTasks(0);
 
-    job.setJarByClass(Aggregate.class);
+    job.setJarByClass(Dangling.class);
     job.waitForCompletion(true);
    
     return 0;
@@ -78,7 +94,7 @@ public int run(String[] args) throws Exception {
  public static void main(String[] args) throws Exception {
     Configuration conf = new Configuration();
     String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
-    ToolRunner.run(new Aggregate(), otherArgs);
+    ToolRunner.run(new Dangling(), otherArgs);
  }
 }
 

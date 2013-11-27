@@ -20,6 +20,12 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.util.GenericOptionsParser;
 
 public class Rank extends Configured implements Tool{
+	private final float dangling;
+	private final int count;
+	public Rank(float dangling, int count){
+		this.dangling=dangling;
+		this.count=count;
+	}
 
  public static class Map extends Mapper<Text, TypeWritable, Text, TypeWritable> {
 	TypeWritable type = new TypeWritable();
@@ -38,6 +44,7 @@ public class Rank extends Configured implements Tool{
                             context.write(imp, type);
                     }
             }
+            value.setRank(0);
     	context.write(key, value);
     }
 
@@ -53,11 +60,39 @@ public void run (Context context) throws IOException, InterruptedException {
 
  public static class Reduce extends Reducer<Text, TypeWritable, Text, TypeWritable> {
 	 TypeWritable t = new TypeWritable();
+
     @Override
 	public void reduce(Text key, Iterable<TypeWritable> values, Context context) 
     		throws IOException, InterruptedException {
-    	double cur = 0;
-    	
+		 float n = context.getConfiguration().getFloat("love.count", 0);
+		 float danglingRank = context.getConfiguration().getFloat("love.dangling",0);
+		 double pagerankParam = 0.85;
+		 
+		 double cur = 0;
+    	t = new TypeWritable();
+    	for(TypeWritable type: values){
+    		
+    		if(type.getImports().length>0){
+    			this.t=type;
+    		}
+    		cur+=type.getRank();
+    	}
+    	//return (intermediate_key,
+    	//          pr_param*sum(intermediate_value_list)+s*ip/n+(1.0-s)/n)
+    	t.setRank(pagerankParam*cur+pagerankParam*danglingRank/n+(1.0-pagerankParam)/n);
+    	context.write(key, t);
+    }
+ }
+ 
+ public static class Combine extends Reducer<Text, TypeWritable, Text, TypeWritable> {
+	 TypeWritable t = new TypeWritable();
+
+    @Override
+	public void reduce(Text key, Iterable<TypeWritable> values, Context context) 
+    		throws IOException, InterruptedException {
+		 
+		 double cur = 0;
+    	t = new TypeWritable();
     	for(TypeWritable type: values){
     		if(type.getImports().length>0){
     			this.t=type;
@@ -76,6 +111,8 @@ public int run(String[] args) throws Exception {
 	
     Job job = new Job();
     Configuration conf = job.getConfiguration();
+    conf.setInt("love.count", this.count);
+    conf.setFloat("love.dangling", this.dangling);
     FileSystem fs = FileSystem.get(conf);
 	FileStatus[] jarFiles = fs.listStatus(new Path("/libs"));
 	 for (FileStatus status : jarFiles) {
@@ -88,7 +125,7 @@ public int run(String[] args) throws Exception {
 
     job.setMapperClass(Map.class);
     job.setReducerClass(Reduce.class);
-    job.setCombinerClass(Reduce.class);
+    job.setCombinerClass(Combine.class);
 
     job.setInputFormatClass(SequenceFileInputFormat.class);
     job.setOutputFormatClass(SequenceFileOutputFormat.class);
@@ -100,11 +137,5 @@ public int run(String[] args) throws Exception {
    
     return 0;
     }
-
- public static void main(String[] args) throws Exception {
-    Configuration conf = new Configuration();
-    String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
-    ToolRunner.run(new Rank(), otherArgs);
- }
 }
 
