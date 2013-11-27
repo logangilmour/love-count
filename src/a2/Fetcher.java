@@ -59,7 +59,6 @@ public class Fetcher {
 	    
 	    while ((nextLine = reader.readNext()) != null) {
 	    	i++;
-	    	if(i%1000!=0)continue;
 
 	    	String id = nextLine[0];
 	        String url = nextLine[1];
