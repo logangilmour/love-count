@@ -54,7 +54,7 @@ public class Main {
                 
                 
                 int i = 1;
-                for(; i < 10; i++){
+                for(; i < 30; i++){
                 	// sum the pagerank of dangling nodes with a mapreduce task
                     // Then divide it by the total number of nodes, and add it to everything in the next step
                 	
@@ -72,7 +72,12 @@ public class Main {
                         reader.close();
                         
                         System.out.println("=============================");
+                        System.out.println("=============================");
+                        System.out.println("=============================");
                         System.out.println("Dangling is "+dangling.get());
+                        System.out.println("=============================");
+                        System.out.println("=============================");
+                        System.out.println("=============================");
                         
                         String current = dir + "tr-" + i + ".out";
                         String[] opts2 = {previous, current};
