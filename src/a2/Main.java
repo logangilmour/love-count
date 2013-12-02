@@ -1,5 +1,8 @@
 package a2;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import mapred.Count;
 import mapred.Dangling;
 import mapred.InitRank;
@@ -14,7 +17,6 @@ import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.lib.input.SequenceFileRecordReader;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.ToolRunner;
 
@@ -51,10 +53,10 @@ public class Main {
                 int count = c.get();
                 System.out.println("Count is "+count);
                 
-                
+                List<Double> danglers = new ArrayList<Double>();
                 
                 int i = 1;
-                for(; i < 30; i++){
+                for(; i < 50; i++){
                 	// sum the pagerank of dangling nodes with a mapreduce task
                     // Then divide it by the total number of nodes, and add it to everything in the next step
                 	
@@ -71,13 +73,7 @@ public class Main {
                         reader.next(new Text(), dangling);
                         reader.close();
                         
-                        System.out.println("=============================");
-                        System.out.println("=============================");
-                        System.out.println("=============================");
-                        System.out.println("Dangling is "+dangling.get());
-                        System.out.println("=============================");
-                        System.out.println("=============================");
-                        System.out.println("=============================");
+                        danglers.add(dangling.get());
                         
                         String current = dir + "tr-" + i + ".out";
                         String[] opts2 = {previous, current};
@@ -96,7 +92,11 @@ public class Main {
                 ToolRunner.run(new SumProjects(), aggOpts);
                 
                 fs.delete(new Path(prev), true);
-
+                System.out.println("========================================");
+                System.out.println("Dangling:");
+                for(Double d: danglers){
+                	System.out.println(d);
+                }
                 
                 // Aggregate all Type names under their respective projects
                 // create file containing package names and their respective projects 
