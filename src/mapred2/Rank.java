@@ -1,4 +1,4 @@
-package mapred;
+package mapred2;
 import java.io.IOException;
 import org.apache.hadoop.conf.*;
 
@@ -21,8 +21,8 @@ import org.apache.hadoop.util.GenericOptionsParser;
 
 public class Rank extends Configured implements Tool{
 	private final float dangling;
-	private final float count;
-	public Rank(float dangling, float count){
+	private final int count;
+	public Rank(float dangling, int count){
 		this.dangling=dangling;
 		this.count=count;
 	}
@@ -79,7 +79,7 @@ public void run (Context context) throws IOException, InterruptedException {
     	}
     	//return (intermediate_key,
     	//          pr_param*sum(intermediate_value_list)+s*ip/n+(1.0-s)/n)
-    	t.setRank(pagerankParam*cur+pagerankParam*(danglingRank/n)+(1.0-pagerankParam));
+    	t.setRank(pagerankParam*cur+pagerankParam*danglingRank/n+(1.0-pagerankParam)/n);
     	context.write(key, t);
     }
  }
@@ -111,7 +111,7 @@ public int run(String[] args) throws Exception {
 	
     Job job = new Job();
     Configuration conf = job.getConfiguration();
-    conf.setFloat("love.count", this.count);
+    conf.setInt("love.count", this.count);
     conf.setFloat("love.dangling", this.dangling);
     FileSystem fs = FileSystem.get(conf);
 	FileStatus[] jarFiles = fs.listStatus(new Path("/libs"));
@@ -137,7 +137,5 @@ public int run(String[] args) throws Exception {
    
     return 0;
     }
-
- 
 }
 

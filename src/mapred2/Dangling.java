@@ -1,4 +1,4 @@
-package mapred;
+package mapred2;
 import java.io.IOException;
 import org.apache.hadoop.conf.*;
 
@@ -19,33 +19,17 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.util.GenericOptionsParser;
 
-public class Rank extends Configured implements Tool{
-	private final float dangling;
-	private final float count;
-	public Rank(float dangling, float count){
-		this.dangling=dangling;
-		this.count=count;
-	}
-
- public static class Map extends Mapper<Text, TypeWritable, Text, TypeWritable> {
+public class Dangling extends Configured implements Tool{
+static Text output = new Text("output");
+ public static class Map extends Mapper<Text, TypeWritable, Text, DoubleWritable> {
 	TypeWritable type = new TypeWritable();
 	Text name = new Text();
     
     @Override
 	public void map(Text key, TypeWritable value, Context context) throws IOException, InterruptedException {
-    	Text[] imports = value.getImports();
-    	
-    	double rank = value.getRank();
-
-            if (imports.length > 0) {
-                    double share = rank / imports.length;
-                    for (Text imp : imports) {
-                            type.setRank(share);
-                            context.write(imp, type);
-                    }
+            if (value.getImports().length < 1) {
+                    context.write(output, new DoubleWritable(value.getRank()));
             }
-            value.setRank(0);
-    	context.write(key, value);
     }
 
   @Override
@@ -58,49 +42,18 @@ public void run (Context context) throws IOException, InterruptedException {
   }
  }
 
- public static class Reduce extends Reducer<Text, TypeWritable, Text, TypeWritable> {
-	 TypeWritable t = new TypeWritable();
+ public static class Reduce extends Reducer<Text, DoubleWritable, Text, DoubleWritable> {
 
     @Override
-	public void reduce(Text key, Iterable<TypeWritable> values, Context context) 
-    		throws IOException, InterruptedException {
-		 float n = context.getConfiguration().getFloat("love.count", 0);
-		 float danglingRank = context.getConfiguration().getFloat("love.dangling",0);
-		 double pagerankParam = 0.85;
-		 
-		 double cur = 0;
-    	t = new TypeWritable();
-    	for(TypeWritable type: values){
-    		
-    		if(type.getImports().length>0){
-    			this.t=type;
-    		}
-    		cur+=type.getRank();
-    	}
-    	//return (intermediate_key,
-    	//          pr_param*sum(intermediate_value_list)+s*ip/n+(1.0-s)/n)
-    	t.setRank(pagerankParam*cur+pagerankParam*(danglingRank/n)+(1.0-pagerankParam));
-    	context.write(key, t);
-    }
- }
- 
- public static class Combine extends Reducer<Text, TypeWritable, Text, TypeWritable> {
-	 TypeWritable t = new TypeWritable();
-
-    @Override
-	public void reduce(Text key, Iterable<TypeWritable> values, Context context) 
+	public void reduce(Text key, Iterable<DoubleWritable> values, Context context) 
     		throws IOException, InterruptedException {
 		 
 		 double cur = 0;
-    	t = new TypeWritable();
-    	for(TypeWritable type: values){
-    		if(type.getImports().length>0){
-    			this.t=type;
-    		}
-    		cur+=type.getRank();
+    	for(DoubleWritable val: values){
+    		cur+=val.get();
     	}
-    	t.setRank(cur);
-    	context.write(key, t);
+
+    	context.write(output, new DoubleWritable(cur));
     }
  }
 
@@ -111,8 +64,6 @@ public int run(String[] args) throws Exception {
 	
     Job job = new Job();
     Configuration conf = job.getConfiguration();
-    conf.setFloat("love.count", this.count);
-    conf.setFloat("love.dangling", this.dangling);
     FileSystem fs = FileSystem.get(conf);
 	FileStatus[] jarFiles = fs.listStatus(new Path("/libs"));
 	 for (FileStatus status : jarFiles) {
@@ -121,23 +72,29 @@ public int run(String[] args) throws Exception {
 	 }
 
     job.setOutputKeyClass(Text.class);
-    job.setOutputValueClass(TypeWritable.class);
+    job.setOutputValueClass(DoubleWritable.class);
 
     job.setMapperClass(Map.class);
     job.setReducerClass(Reduce.class);
-    job.setCombinerClass(Combine.class);
+    job.setCombinerClass(Reduce.class);
+    
+    job.setNumReduceTasks(1);
 
     job.setInputFormatClass(SequenceFileInputFormat.class);
     job.setOutputFormatClass(SequenceFileOutputFormat.class);
     FileInputFormat.setInputPaths(job, new Path(args[0]));
     FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
-    job.setJarByClass(Rank.class);
+    job.setJarByClass(Dangling.class);
     job.waitForCompletion(true);
    
     return 0;
     }
 
- 
+ public static void main(String[] args) throws Exception {
+    Configuration conf = new Configuration();
+    String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
+    ToolRunner.run(new Dangling(), otherArgs);
+ }
 }
 

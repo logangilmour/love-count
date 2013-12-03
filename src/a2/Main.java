@@ -50,7 +50,7 @@ public class Main {
                 IntWritable c = new IntWritable();
                 r.next(new Text(), c);
                 r.close();
-                int count = c.get();
+                float count = c.get();
                 System.out.println("Count is "+count);
                 
                 List<Double> danglers = new ArrayList<Double>();
