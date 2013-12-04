@@ -46,10 +46,10 @@ public void run (Context context) throws IOException, InterruptedException {
  }
 
  
- public static class Reduce extends Reducer<IntWritable, IntWritable, IntWritable, IntWritable> {
+ public static class Reduce extends Reducer<Text, IntWritable, Text, IntWritable> {
 
     @Override
-	public void reduce(IntWritable key, Iterable<IntWritable> values, Context context) 
+	public void reduce(Text key, Iterable<IntWritable> values, Context context) 
     		throws IOException, InterruptedException {
 		 
 		int count = 0;
