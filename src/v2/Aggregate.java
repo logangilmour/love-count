@@ -21,15 +21,26 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.util.GenericOptionsParser;
 
+import v1.Rank.Combine;
+
 public class Aggregate extends Configured implements Tool{
 
- public static class Map extends Mapper<IntWritable, IntWritable, IntWritable, IntWritable> {
-    
+ public static class Map extends Mapper<Text, CitationAggregator, IntWritable, ProjectWritable> {
+    IntWritable c = new IntWritable();
+    ProjectWritable o = new ProjectWritable();
+	IntWritable imp[] = new IntWritable[1];
+	IntWritable empty[] = new IntWritable[0];
+
     @Override
-	public void map(IntWritable key, IntWritable value, Context context) throws IOException, InterruptedException {
-    	
-    	context.write(key, value);
-    	
+	public void map(Text key, CitationAggregator value, Context context) throws IOException, InterruptedException {
+    	c.set(value.getCiter());
+    	if(value.getOwner()!=-1){
+    		imp[0]=new IntWritable(value.getOwner());
+    		o.setImports(imp);
+    	}else{
+    		o.setImports(empty);
+    	}
+    	context.write(c,o);
     }
 
   @Override
@@ -42,20 +53,20 @@ public void run (Context context) throws IOException, InterruptedException {
   }
  }
 
- public static class Reduce extends Reducer<IntWritable, IntWritable, IntWritable, ProjectWritable> {
+ public static class Reduce extends Reducer<IntWritable, ProjectWritable, IntWritable, ProjectWritable> {
 	 ProjectWritable t = new ProjectWritable();
 
     @Override
-	public void reduce(IntWritable key, Iterable<IntWritable> values, Context context) 
+	public void reduce(IntWritable key, Iterable<ProjectWritable> values, Context context) 
     		throws IOException, InterruptedException {
 		 
 		
     	t = new ProjectWritable();
     	ArrayList<IntWritable> deps = new ArrayList<IntWritable>();
     	
-    	for(IntWritable proj: values){
-    		if(proj.get()!=-1){
-    			deps.add(proj);
+    	for(ProjectWritable proj: values){
+    		for(IntWritable i: proj.getImports()){
+    			deps.add(i);
     		}
     	}
     	
@@ -86,6 +97,7 @@ public int run(String[] args) throws Exception {
 
     job.setMapperClass(Map.class);
     job.setReducerClass(Reduce.class);
+    job.setCombinerClass(Reduce.class);
 
     job.setInputFormatClass(SequenceFileInputFormat.class);
     job.setOutputFormatClass(SequenceFileOutputFormat.class);

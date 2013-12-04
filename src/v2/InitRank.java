@@ -106,33 +106,33 @@ public void run (Context context) throws IOException, InterruptedException {
   }
  }
 
- public static class Reduce extends Reducer<Text, CitationAggregator, IntWritable, IntWritable> {
+ public static class Reduce extends Reducer<Text, CitationAggregator, Text, CitationAggregator> {
 
     public void reduce(Text key, Iterable<CitationAggregator> values, Context context) 
     		throws IOException, InterruptedException {
     	int owner = -1;
     	IntWritable non = new IntWritable(-1);
-    	ArrayList<Integer> citers = new ArrayList<Integer>();
+    	ArrayList<CitationAggregator> citers = new ArrayList<CitationAggregator>();
     	for(CitationAggregator agg: values){
     		if(agg.getOwner()!=-1){
     			owner=agg.getOwner();
     		}
     		if(agg.getCiter()!=-1){
-    			citers.add(agg.getCiter());
+    			citers.add(agg);
     		}
     	}
     	
-    	IntWritable k = new IntWritable();
-    	IntWritable v = new IntWritable(owner);
-    	for(Integer i: citers){
-    		if(i!=owner){
-    			k.set(i);
-    			context.write(k, v);
+    	
+    	for(CitationAggregator agg: citers){
+    		if(agg.getCiter()!=owner){
+    			agg.setOwner(owner);
+    			context.write(key,agg);
     		}
     	}
-    	context.write(v, non);
-    	//return (intermediate_key,
-    	//          pr_param*sum(intermediate_value_list)+s*ip/n+(1.0-s)/n)
+    	CitationAggregator ret = new CitationAggregator();
+    	ret.setCiter(owner);
+    	ret.setOwner(-1);
+    	context.write(key,ret);
     }
  }
 
@@ -150,8 +150,8 @@ public int run(String[] args) throws Exception {
 	      DistributedCache.addFileToClassPath(disqualified, conf, fs);
 	 }
 
-    job.setOutputKeyClass(IntWritable.class);
-    job.setOutputValueClass(IntWritable.class);
+    job.setOutputKeyClass(Text.class);
+    job.setOutputValueClass(CitationAggregator.class);
 
     job.setMapperClass(Map.class);
     job.setReducerClass(Reduce.class);
