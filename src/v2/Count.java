@@ -76,7 +76,7 @@ public int run(String[] args) throws Exception {
 	      DistributedCache.addFileToClassPath(disqualified, conf, fs);
 	 }
 
-    job.setOutputKeyClass(IntWritable.class);
+    job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(IntWritable.class);
 
     job.setMapperClass(Map.class);
