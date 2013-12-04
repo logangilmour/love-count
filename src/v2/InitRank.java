@@ -120,18 +120,19 @@ public void run (Context context) throws IOException, InterruptedException {
     			citers.add(agg);
     		}
     	}
-    	
-    	
+    	if(owner!=-1){
     	for(CitationAggregator agg: citers){
     		if(agg.getCiter()!=owner){
     			agg.setOwner(owner);
     			context.write(key,agg);
     		}
     	}
+    	
     	CitationAggregator ret = new CitationAggregator();
     	ret.setCiter(owner);
     	ret.setOwner(-1);
     	context.write(key,ret);
+    	}
     }
  }
 
