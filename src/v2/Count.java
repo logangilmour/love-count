@@ -82,7 +82,7 @@ public int run(String[] args) throws Exception {
     job.setReducerClass(Reduce.class);
     //job.setCombinerClass(Reduce.class);
     
-    //job.setNumReduceTasks(1);
+    job.setNumReduceTasks(1);
 
 
     job.setInputFormatClass(SequenceFileInputFormat.class);
