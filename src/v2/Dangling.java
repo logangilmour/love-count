@@ -11,6 +11,7 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
@@ -22,24 +23,21 @@ import org.apache.hadoop.util.GenericOptionsParser;
 public class Dangling extends Configured implements Tool{
 static Text output = new Text("output");
  public static class Map extends Mapper<IntWritable, ProjectWritable, Text, DoubleWritable> {
-	ProjectWritable type = new ProjectWritable();
-	Text name = new Text();
-    
-    @Override
-	public void map(IntWritable key, ProjectWritable value, Context context) throws IOException, InterruptedException {
-            if (value.getImports().length < 1) {
-                    context.write(output, new DoubleWritable(value.getRank()));
-            }
-    }
 
-  @Override
-public void run (Context context) throws IOException, InterruptedException {
-        setup(context);
-        while (context.nextKeyValue()) {
-              map(context.getCurrentKey(), context.getCurrentValue(), context);
-            }
-        cleanup(context);
-  }
+    @Override
+    public void run (Context context) throws IOException, InterruptedException {
+    	  
+            setup(context);
+            double rank = 0;
+            while (context.nextKeyValue()) {
+                  ProjectWritable w = context.getCurrentValue();
+                  if(w.getImports().length<1){
+                	  rank+=w.getRank();
+                  }
+                }
+            context.write(new Text("count"), new DoubleWritable(rank));
+            cleanup(context);
+      }
  }
 
  public static class Reduce extends Reducer<Text, DoubleWritable, Text, DoubleWritable> {
@@ -76,7 +74,7 @@ public int run(String[] args) throws Exception {
 
     job.setMapperClass(Map.class);
     job.setReducerClass(Reduce.class);
-    job.setCombinerClass(Reduce.class);
+    //job.setCombinerClass(Reduce.class);
     
     //job.setNumReduceTasks(1);
 

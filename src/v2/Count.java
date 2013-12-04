@@ -26,23 +26,21 @@ public class Count extends Configured implements Tool{
 	}
 
  public static class Map extends Mapper<IntWritable, ProjectWritable, Text, IntWritable> {
- 	Text text = new Text("count");
- 	IntWritable one = new IntWritable(1);
-    @Override
-	public void map(IntWritable key, ProjectWritable value, Context context) throws IOException, InterruptedException {
-
-    	
-    	context.write(text, one);
-    }
 
   @Override
 public void run (Context context) throws IOException, InterruptedException {
+	  
         setup(context);
+        int count = 0;
         while (context.nextKeyValue()) {
-              map(context.getCurrentKey(), context.getCurrentValue(), context);
+              count++;
             }
+        context.write(new Text("count"), new IntWritable(count));
         cleanup(context);
   }
+  
+  
+  
  }
 
  
@@ -81,7 +79,7 @@ public int run(String[] args) throws Exception {
 
     job.setMapperClass(Map.class);
     job.setReducerClass(Reduce.class);
-    job.setCombinerClass(Reduce.class);
+    //job.setCombinerClass(Reduce.class);
     
     //job.setNumReduceTasks(1);
 
