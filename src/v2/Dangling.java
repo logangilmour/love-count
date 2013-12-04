@@ -21,12 +21,12 @@ import org.apache.hadoop.util.GenericOptionsParser;
 
 public class Dangling extends Configured implements Tool{
 static Text output = new Text("output");
- public static class Map extends Mapper<Text, ProjectWritable, Text, DoubleWritable> {
+ public static class Map extends Mapper<IntWritable, ProjectWritable, Text, DoubleWritable> {
 	ProjectWritable type = new ProjectWritable();
 	Text name = new Text();
     
     @Override
-	public void map(Text key, ProjectWritable value, Context context) throws IOException, InterruptedException {
+	public void map(IntWritable key, ProjectWritable value, Context context) throws IOException, InterruptedException {
             if (value.getImports().length < 1) {
                     context.write(output, new DoubleWritable(value.getRank()));
             }
