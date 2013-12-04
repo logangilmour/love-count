@@ -33,7 +33,7 @@ public void run (Context context) throws IOException, InterruptedException {
         setup(context);
         int count = 0;
         while (context.nextKeyValue()) {
-        	
+        		
               count++;
             }
         context.write(new Text("count"), new IntWritable(count));
