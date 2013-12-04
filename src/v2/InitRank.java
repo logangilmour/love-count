@@ -120,11 +120,11 @@ public void run (Context context) throws IOException, InterruptedException {
     			citers.add(agg);
     		}
     	}
-    	if(owner!=-1){
     	for(CitationAggregator agg: citers){
     		if(agg.getCiter()!=owner){
     			agg.setOwner(owner);
-    			context.write(key,agg);
+    			if(agg.getCiter()!=-1)
+    				context.write(key,agg);
     		}
     	}
     	
@@ -132,7 +132,7 @@ public void run (Context context) throws IOException, InterruptedException {
     	ret.setCiter(owner);
     	ret.setOwner(-1);
     	context.write(key,ret);
-    	}
+    	
     }
  }
 
