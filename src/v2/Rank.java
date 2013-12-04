@@ -58,11 +58,11 @@ public void run (Context context) throws IOException, InterruptedException {
   }
  }
 
- public static class Reduce extends Reducer<Text, ProjectWritable, Text, ProjectWritable> {
+ public static class Reduce extends Reducer<IntWritable, ProjectWritable, IntWritable, ProjectWritable> {
 	 ProjectWritable t = new ProjectWritable();
 
     @Override
-	public void reduce(Text key, Iterable<ProjectWritable> values, Context context) 
+	public void reduce(IntWritable key, Iterable<ProjectWritable> values, Context context) 
     		throws IOException, InterruptedException {
 		 float n = context.getConfiguration().getFloat("love.count", 0);
 		 float danglingRank = context.getConfiguration().getFloat("love.dangling",0);
