@@ -35,11 +35,11 @@ public class Main {
 
                 
                 // Then, set each rank up to be that initial value
-                //String[] initOpts = { otherArgs[0], dir + "ir-0.out" };
-                //ToolRunner.run(new InitRank(), initOpts);
+                String[] initOpts = { otherArgs[0], dir + "ir-0.out" };
+                ToolRunner.run(new InitRank(), initOpts);
                 
-                //String[] groupOpts = { dir + "ir-0.out", dir + "tr-0.out"};
-                //ToolRunner.run(new Aggregate(), groupOpts);
+                String[] groupOpts = { dir + "ir-0.out", dir + "tr-0.out"};
+                ToolRunner.run(new Aggregate(), groupOpts);
                 
                 String [] countOpts = { dir + "tr-0.out", dir+ "cr.out"};
                 ToolRunner.run(new Count(), countOpts);
