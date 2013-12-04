@@ -80,6 +80,10 @@ class RefCount implements Writable{
 		this.ref = ref;
 	}
 	
+	public String toString(){
+		return ref+","+count;
+	}
+	
 }
 
 class RefCountArray extends ArrayWritable{
