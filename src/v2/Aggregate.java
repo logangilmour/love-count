@@ -1,6 +1,9 @@
 package v2;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map.Entry;
 
 import org.apache.hadoop.conf.*;
 
@@ -28,14 +31,16 @@ public class Aggregate extends Configured implements Tool{
  public static class Map extends Mapper<Text, CitationAggregator, IntWritable, ProjectWritable> {
     IntWritable c = new IntWritable();
     ProjectWritable o = new ProjectWritable();
-	IntWritable imp[] = new IntWritable[1];
-	IntWritable empty[] = new IntWritable[0];
+	RefCount imp[] = new RefCount[1];
+	RefCount empty[] = new RefCount[0];
 
     @Override
 	public void map(Text key, CitationAggregator value, Context context) throws IOException, InterruptedException {
     	c.set(value.getCiter());
     	if(value.getOwner()!=-1){
-    		imp[0]=new IntWritable(value.getOwner());
+    		RefCount r = new RefCount();
+    		r.setRef(value.getOwner());
+    		imp[0]=r;
     		o.setImports(imp);
     	}else{
     		o.setImports(empty);
@@ -62,15 +67,23 @@ public void run (Context context) throws IOException, InterruptedException {
 		 
 		
     	t = new ProjectWritable();
-    	ArrayList<IntWritable> deps = new ArrayList<IntWritable>();
+    	HashMap<Integer,Integer> deps = new HashMap<Integer,Integer>();
     	
     	for(ProjectWritable proj: values){
-    		for(IntWritable i: proj.getImports()){
-    			deps.add(i);
+    		for(RefCount r: proj.getImports()){
+    			Integer e = deps.get(r.getRef());
+    			if(e!=null) deps.put(r.getRef(), r.getCount()+e);
+    			else deps.put(r.getRef(), r.getCount());
     		}
     	}
-    	
-    	t.setImports(deps.toArray(new IntWritable[0]));
+    	ArrayList<RefCount> refs = new ArrayList<RefCount>();
+    	for(Entry<Integer,Integer> e:deps.entrySet()){
+    		RefCount r = new RefCount();
+    		r.setRef(e.getKey());
+    		r.setCount(e.getValue());
+    		refs.add(r);
+    	}
+    	t.setImports(refs.toArray(new RefCount[0]));
     	
     	//return (intermediate_key,
     	//          pr_param*sum(intermediate_value_list)+s*ip/n+(1.0-s)/n)

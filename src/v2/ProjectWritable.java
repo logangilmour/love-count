@@ -20,10 +20,10 @@ public class ProjectWritable implements Writable {
 		this.rank = rank;
 	}
 
-	private IntArrayWritable imports = new IntArrayWritable();
+	private RefCountArray imports = new RefCountArray();
 	
 	public ProjectWritable(){
-		setImports(new IntWritable[0]);
+		setImports(new RefCount[0]);
 	}
 	
 	@Override
@@ -38,16 +38,52 @@ public class ProjectWritable implements Writable {
 		imports.write(arg0);
 	}
 	
-	public IntWritable[] getImports(){
-		return (IntWritable[]) imports.toArray();
+	public RefCount[] getImports(){
+		return (RefCount[]) imports.toArray();
 	}
 	
-	public void setImports(IntWritable[] imports){
+	public void setImports(RefCount[] imports){
 		this.imports.set(imports);
 	}
-	
-	public String toString(){
-		return rank+": "+Arrays.toString(imports.toStrings());
+
+}
+
+class RefCount implements Writable{
+	private int count=1;
+	private int ref=-1;
+	@Override
+	public void readFields(DataInput arg0) throws IOException {
+		count = arg0.readInt();
+		ref = arg0.readInt();
+		
 	}
 
+	@Override
+	public void write(DataOutput arg0) throws IOException {
+		arg0.writeInt(count);
+		arg0.writeInt(ref);
+	}
+
+	public int getCount() {
+		return count;
+	}
+
+	public void setCount(int count) {
+		this.count = count;
+	}
+
+	public int getRef() {
+		return ref;
+	}
+
+	public void setRef(int ref) {
+		this.ref = ref;
+	}
+	
+}
+
+class RefCountArray extends ArrayWritable{
+	public RefCountArray(){
+		super(RefCount.class);
+	}
 }

@@ -33,15 +33,19 @@ public class Rank extends Configured implements Tool{
     
     @Override
 	public void map(IntWritable key, ProjectWritable value, Context context) throws IOException, InterruptedException {
-    	IntWritable[] imports = value.getImports();
+    	RefCount[] imports = value.getImports();
     	
     	double rank = value.getRank();
-    	
-            if (imports.length > 0) {
-                    double share = rank / imports.length;
-                    for (IntWritable imp : imports) {
-                            proj.setRank(share);
-                            context.write(imp, proj);
+    	int length = 0;
+    	for(RefCount r : imports){
+    		length+=r.getCount();
+    	}
+    	double share = rank / length;
+            if (length > 0) {
+                    
+                    for (RefCount r : imports) {
+                            proj.setRank(share*r.getCount());
+                            context.write(new IntWritable(r.getRef()), proj);
                     }
             }
             value.setRank(0);

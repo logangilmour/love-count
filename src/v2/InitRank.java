@@ -111,7 +111,6 @@ public void run (Context context) throws IOException, InterruptedException {
     public void reduce(Text key, Iterable<CitationAggregator> values, Context context) 
     		throws IOException, InterruptedException {
     	int owner = -1;
-    	IntWritable non = new IntWritable(-1);
     	ArrayList<CitationAggregator> citers = new ArrayList<CitationAggregator>();
     	for(CitationAggregator agg: values){
     		if(agg.getOwner()!=-1){

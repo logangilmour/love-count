@@ -47,6 +47,8 @@ public class CitationAggregator implements Writable {
 	public void setOwner(int owner) {
 		this.owner = owner;
 	}
+	
+	
 
 }
 
