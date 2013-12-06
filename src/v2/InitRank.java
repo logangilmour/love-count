@@ -29,6 +29,8 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.util.GenericOptionsParser;
 
+import v2.InitRank.Map.MyCounter;
+
 import a2.Lookup;
 
 public class InitRank extends Configured implements Tool{
@@ -38,7 +40,7 @@ public class InitRank extends Configured implements Tool{
 	CitationAggregator agg = new CitationAggregator();
 
     public static enum MyCounter{
-    	BAD_PARSE, NO_PACKAGE, WILD_CARD_IMPORTS, NO_IMPORTS, USEFUL, TOTAL
+    	BAD_PARSE, NO_PACKAGE, WILD_CARD_IMPORTS, NO_IMPORTS, USEFUL, TOTAL, GOOD_INIT, POTENTIAL_INIT
     };
     
     @Override
@@ -118,7 +120,9 @@ public void run (Context context) throws IOException, InterruptedException {
     	int owner = -1;
     	int count = 0;
     	for(CitationAggregator agg: values){
+    		context.getCounter(MyCounter.POTENTIAL_INIT).increment(1);
     		if(agg.getOwner()!=-1 && (owner == -1 || map.get(agg.getOwner())>count)){
+    			context.getCounter(MyCounter.GOOD_INIT).increment(1);
     			owner=agg.getOwner();
     			count=map.get(owner);
     		}
