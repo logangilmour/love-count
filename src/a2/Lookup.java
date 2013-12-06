@@ -19,7 +19,8 @@ public class Lookup {
 		HashMap<Integer,Integer> ret = new HashMap<Integer,Integer>();
 		CSVReader reader = null;
 		try{
-		reader = new CSVReader(
+		
+			reader = new CSVReader(
 				new InputStreamReader(
 						new Lookup()
 						.getClass()
