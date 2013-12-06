@@ -29,6 +29,8 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.util.GenericOptionsParser;
 
+import a2.Lookup;
+
 public class InitRank extends Configured implements Tool{
 
  public static class Map extends Mapper<Text, Text, Text, CitationAggregator> {
@@ -107,19 +109,24 @@ public void run (Context context) throws IOException, InterruptedException {
  }
 
  public static class Reduce extends Reducer<Text, CitationAggregator, Text, CitationAggregator> {
+	 private HashMap<Integer,Integer> map = Lookup.get();
 
     public void reduce(Text key, Iterable<CitationAggregator> values, Context context) 
     		throws IOException, InterruptedException {
-    	int owner = -1;
     	ArrayList<CitationAggregator> citers = new ArrayList<CitationAggregator>();
+    	
+    	int owner = -1;
+    	int count = 0;
     	for(CitationAggregator agg: values){
-    		if(agg.getOwner()!=-1){
+    		if(agg.getOwner()!=-1 && map.get(owner)>count){
     			owner=agg.getOwner();
+    			count=map.get(owner);
     		}
     		if(agg.getCiter()!=-1){
     			citers.add(agg);
     		}
     	}
+    	
     	for(CitationAggregator agg: citers){
     		if(agg.getCiter()!=owner){
     			agg.setOwner(owner);
