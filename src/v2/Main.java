@@ -59,7 +59,7 @@ public class Main {
                 List<Double> danglers = new ArrayList<Double>();
                 
                 int i = 1;
-                for(; i < 50; i++){
+                for(; i < 2; i++){
                 	// sum the pagerank of dangling nodes with a mapreduce task
                     // Then divide it by the total number of nodes, and add it to everything in the next step
                 	
