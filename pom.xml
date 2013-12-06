@@ -5,6 +5,14 @@
   <version>0.0.1-SNAPSHOT</version>
   
   <build>
+  <resources>
+      <resource>
+        <directory>src/resources</directory>
+        <includes>
+          <include>lookup.csv</include>
+        </includes>
+      </resource>
+    </resources>
     <sourceDirectory>src</sourceDirectory>
     <plugins>
       
