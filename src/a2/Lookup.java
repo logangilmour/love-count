@@ -25,7 +25,7 @@ public class Lookup {
 						new Lookup()
 						.getClass()
 						.getClassLoader()
-		        .getResourceAsStream("resources/lookup.csv")));
+		        .getResourceAsStream("lookup.csv")));
 	    String [] nextLine;
 	    int i = 0;
 	
