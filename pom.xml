@@ -10,6 +10,7 @@
         <directory>src/resources</directory>
         <includes>
           <include>lookup.csv</include>
+          <include>age.csv</include>
         </includes>
       </resource>
     </resources>
